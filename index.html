@@ -12,6 +12,12 @@
         <div class="messages" id="messages"></div>
         <div id="loading" class="loading" style="display: none;">加载中...</div>
         <div class="input-container">
+            <div class="model-select">
+                <select id="model-selector">
+                    <option value="deepseek-chat">Deepseek V3</option>
+                    <option value="deepseek-reasoner">Deepseek r1</option>
+                </select>
+            </div>
             <input id="chat-input" type="text" placeholder="输入消息..." />
             <button onclick="sendMessage()">发送</button>
             <div class="dropdown">
@@ -24,7 +30,6 @@
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
