@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小元Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div id="loading" class="loading" style="display: none;">加载中...</div>
+        <div class="input-container">
+            <input id="chat-input" type="text" placeholder="输入消息..." />
+            <button onclick="sendMessage()">发送</button>
+            <div class="dropdown">
+                <button onclick="toggleDropdown(event)">更多</button>
+                <div class="dropdown-content" id="dropdownMenu">
+                    <div class="dropdown-item" onclick="toggleTheme()">
+                        <span>浅色/深色</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
