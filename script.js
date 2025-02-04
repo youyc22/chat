@@ -60,7 +60,7 @@ function displayMessage(role, message) {
     messageElement.className = `message ${role}`;
     
     const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'user-avatar.png' : 'bot-avatar.png';
+    avatar.src = role === 'user' ? 'yyc.png' : 'saki1.jpg';
     avatar.alt = role === 'user' ? 'User' : 'Bot';
 
     const messageContent = document.createElement('div');
