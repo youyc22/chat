@@ -1,187 +1,185 @@
-// 格式化消息文本
-function formatMessage(text) {
+import React, { useState, useEffect, useRef } from 'react';
+import { Moon, Sun, Send, Settings } from 'lucide-react';
+
+const ChatInterface = () => {
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('deepseek-chat');
+  const [showSettings, setShowSettings] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+    scrollToBottom();
+  }, [messages]);
+
+  const formatMessage = (text) => {
     if (!text) return '';
     
-    // 处理标题和换行
-    let lines = text.split('\n');
-    let formattedLines = lines.map(line => {
-        // 处理标题（**文本**）
-        line = line.replace(/\*\*(.*?)\*\*/g, '<span class="bold-text">$1</span>');
-        return line;
-    });
+    // Handle bold text
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // 将 ### 替换为换行，并确保每个部分都是一个段落
-    let processedText = formattedLines.join('\n');
-    let sections = processedText
-        .split('###')
-        .filter(section => section.trim())
-        .map(section => {
-            // 移除多余的换行和空格
-            let lines = section.split('\n').filter(line => line.trim());
-            
-            if (lines.length === 0) return '';
-            
-            // 处理每个部分
-            let result = '';
-            let currentIndex = 0;
-            
-            while (currentIndex < lines.length) {
-                let line = lines[currentIndex].trim();
-                
-                // 如果是数字开头（如 "1.")
-                if (/^\d+\./.test(line)) {
-                    result += `<p class="section-title">${line}</p>`;
-                }
-                // 如果是小标题（以破折号开头）
-                else if (line.startsWith('-')) {
-                    result += `<p class="subsection"><span class="bold-text">${line.replace(/^-/, '').trim()}</span></p>`;
-                }
-                // 如果是正文（包含冒号的行）
-                else if (line.includes(':')) {
-                    let [subtitle, content] = line.split(':').map(part => part.trim());
-                    result += `<p><span class="subtitle">${subtitle}</span>: ${content}</p>`;
-                }
-                // 普通文本
-                else {
-                    result += `<p>${line}</p>`;
-                }
-                currentIndex++;
-            }
-            return result;
-        });
+    // Handle sections
+    const sections = text.split('###').filter(section => section.trim());
     
-    return sections.join('');
-}
+    return sections.map(section => {
+      const lines = section.split('\n').filter(line => line.trim());
+      return lines.map(line => {
+        if (/^\d+\./.test(line)) {
+          return `<p class="text-lg font-semibold mb-2">${line}</p>`;
+        } else if (line.startsWith('-')) {
+          return `<p class="mb-2 font-medium">${line.replace(/^-/, '')}</p>`;
+        } else if (line.includes(':')) {
+          const [subtitle, content] = line.split(':');
+          return `<p class="mb-2"><span class="font-medium">${subtitle}:</span>${content}</p>`;
+        }
+        return `<p class="mb-2">${line}</p>`;
+      }).join('');
+    }).join('');
+  };
 
-// 显示消息
-function displayMessage(role, message) {
-    const messagesContainer = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${role}`;
-    
-    const avatar = document.createElement('img');
-    avatar.src = role === 'user' ? 'yyc.png' : 'saki1.jpg';
-    avatar.alt = role === 'user' ? 'User' : 'Bot';
+  const handleSend = async () => {
+    if (!inputValue.trim()) return;
 
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-    
-    // 用户消息直接显示，机器人消息需要格式化
-    messageContent.innerHTML = role === 'user' ? message : formatMessage(message);
+    const userMessage = { role: 'user', content: inputValue };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
 
-    messageElement.appendChild(avatar);
-    messageElement.appendChild(messageContent);
-    messagesContainer.appendChild(messageElement);
-    
-    // 平滑滚动到底部
-    messageElement.scrollIntoView({ behavior: 'smooth' });
-}
-
-function sendMessage() {
-    const inputElement = document.getElementById('chat-input');
-    const message = inputElement.value;
-    if (!message.trim()) return;
-
-    displayMessage('user', message);
-    inputElement.value = '';
-
-    // 显示加载动画
-    const loadingElement = document.getElementById('loading');
-    if (loadingElement) {
-        loadingElement.style.display = 'block';
-    }
-
-    const apiKey = 'sk-0456c3e480af4d24ac6ab2f688fa7515';
-    const endpoint = 'https://api.deepseek.com/chat/completions';
-
-    const payload = {
-        model: "deepseek-chat",
-        messages: [
-            { role: "system", content: "You are a helpful assistant" },
-            { role: "user", content: message }
-        ],
-        stream: false
-    };
-
-    fetch(endpoint, {
+    try {
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sk-0456c3e480af4d24ac6ab2f688fa7515'
         },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        // 隐藏加载动画
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
-        }
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: [
+            { role: "system", content: "You are a helpful assistant" },
+            userMessage
+          ],
+          stream: false
+        })
+      });
 
-        if (data.choices && data.choices.length > 0) {
-            displayMessage('bot', data.choices[0].message.content);
-        } else {
-            displayMessage('bot', '出错了，请稍后再试。');
-        }
-    })
-    .catch(error => {
-        // 隐藏加载动画
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
-        }
-
-        displayMessage('bot', '出错了，请稍后再试。');
-        console.error('Error:', error);
-    });
-}
-
-// 添加主题切换功能
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const chatContainer = document.querySelector('.chat-container');
-    const messages = document.querySelector('.messages');
-    
-    // 同时切换容器的深色模式
-    chatContainer.classList.toggle('dark-mode');
-    messages.classList.toggle('dark-mode');
-    
-    // 保存主题设置
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-}
-
-// 页面加载时检查主题设置
-document.addEventListener('DOMContentLoaded', () => {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-        document.querySelector('.chat-container').classList.add('dark-mode');
-        document.querySelector('.messages').classList.add('dark-mode');
+      const data = await response.json();
+      if (data.choices && data.choices.length > 0) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.choices[0].message.content }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: '发生错误，请稍后重试。' }]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, { role: 'assistant', content: '发生错误，请稍后重试。' }]);
+    } finally {
+      setIsLoading(false);
     }
-});
+  };
 
-// 添加下拉菜单功能
-function toggleDropdown(event) {
-    event.preventDefault();
-    document.getElementById('dropdownMenu').classList.toggle('show');
-}
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('darkMode', newMode);
+  };
 
-// 点击其他地方关闭下拉菜单
-window.onclick = function(event) {
-    if (!event.target.matches('.dropdown button')) {
-        const dropdowns = document.getElementsByClassName('dropdown-content');
-        for (const dropdown of dropdowns) {
-            if (dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            }
-        }
-    }
-}
+  return (
+    <div className={`flex flex-col h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      {/* Header */}
+      <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
+        <h1 className="text-xl font-bold">DeepSeek Chat</h1>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+          <button
+            onClick={toggleDarkMode}
+            className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </div>
+      </div>
 
-// 添加回车发送功能
-document.getElementById('chat-input').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-});
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className={`p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b`}>
+          <div className="flex items-center gap-4">
+            <span className="font-medium">模型选择：</span>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className={`p-2 rounded ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'} border`}
+            >
+              <option value="deepseek-chat">DeepSeek Chat</option>
+              <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-3xl rounded-lg p-4 ${
+                message.role === 'user'
+                  ? `${isDarkMode ? 'bg-blue-600' : 'bg-blue-500'} text-white`
+                  : `${isDarkMode ? 'bg-gray-800' : 'bg-white'} ${isDarkMode ? 'text-white' : 'text-gray-900'}`
+              } shadow`}
+            >
+              <div dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className={`p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-t`}>
+        <div className="flex items-center gap-4 max-w-4xl mx-auto">
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="输入消息..."
+            className={`flex-1 p-3 rounded-lg resize-none ${
+              isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            rows="1"
+          />
+          <button
+            onClick={handleSend}
+            disabled={isLoading}
+            className={`p-3 rounded-lg ${
+              isDarkMode ? 'bg-blue-600' : 'bg-blue-500'
+            } text-white hover:opacity-90 disabled:opacity-50 transition-opacity`}
+          >
+            <Send className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatInterface;
