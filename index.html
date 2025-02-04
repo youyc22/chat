@@ -3,33 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小元Chat</title>
+    <title>yyc Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="chat-container">
+        <!-- 添加顶部设置栏 -->
+        <div class="settings-bar">
+            <div class="settings-left">
+                <div class="model-select">
+                    <label for="model-selector"></label>
+                    <select id="model-selector">
+                        <option value="deepseek-chat">Deepseek V3</option>
+                        <option value="deepseek-reasoner">Deepseek r1</option>
+                        <option value="qwen-max">Qwen-Max</option>
+                        <option value="qwen-plus">Qwen-Plus</option>
+                    </select>
+                </div>
+                <!-- 添加 API Key 管理按钮 -->
+                <div class="api-key-manager">
+                    <button onclick="showApiKeyManager()" class="api-key-btn">
+                        <span class="key-icon">🔑</span>
+                        <span id="apiKeyStatus">API Key</span>
+                    </button>
+                </div>
+            </div>
+            <div class="settings-right">
+                <div class="theme-toggle">
+                    <span>🌞</span>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle" onclick="toggleTheme()">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>🌙</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
         <div class="messages" id="messages"></div>
         <div id="loading" class="loading" style="display: none;">加载中...</div>
+
+        <!-- 输入区域 -->
         <div class="input-container">
-            <div class="model-select">
-                <select id="model-selector">
-                    <option value="deepseek-chat">Deepseek V3</option>
-                    <option value="deepseek-reasoner">Deepseek r1</option>
-                </select>
-            </div>
-            <input id="chat-input" type="text" placeholder="输入消息..." />
+            <input id="chat-input" type="text" placeholder="输入消息..." autocomplete="off"/>
             <button onclick="sendMessage()">发送</button>
-            <div class="dropdown">
-                <button onclick="toggleDropdown(event)">更多</button>
-                <div class="dropdown-content" id="dropdownMenu">
-                    <div class="dropdown-item" onclick="toggleTheme()">
-                        <span>浅色/深色</span>
-                    </div>
+        </div>
+    </div>
+
+    <!-- API Key 管理弹窗 -->
+    <div id="apiKeyManager" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Key 管理</h2>
+                <button onclick="hideApiKeyManager()" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="api-key-status">
+                    <p>当前状态: <span id="currentKeyStatus">未设置</span></p>
+                </div>
+                <div class="api-key-input">
+                    <input type="password" id="apiKeyInput" placeholder="输入新的 API Key" autocomplete="off"/>
+                    <button onclick="toggleKeyVisibility()" class="toggle-visibility">
+                        <span id="visibilityIcon">👁️</span>
+                    </button>
+                </div>
+                <div class="api-key-actions">
+                    <button onclick="updateApiKey()" class="primary-btn">更新</button>
+                    <button onclick="removeApiKey()" class="danger-btn">删除</button>
                 </div>
             </div>
         </div>
     </div>
+
+
     <script src="script.js"></script>
 </body>
 </html>
