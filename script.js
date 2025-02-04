@@ -8,6 +8,8 @@ const ChatInterface = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedModel, setSelectedModel] = useState('deepseek-chat');
   const [showSettings, setShowSettings] = useState(false);
+  const [currentReasoning, setCurrentReasoning] = useState('');
+  const [currentResponse, setCurrentResponse] = useState('');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -45,6 +47,46 @@ const ChatInterface = () => {
     }).join('');
   };
 
+  const processStreamResponse = async (reader) => {
+    let reasoningContent = '';
+    let content = '';
+    
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        // Convert the chunk to text and parse it
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+        
+        for (const line of lines) {
+          if (!line.startsWith('data:')) continue;
+          
+          try {
+            const jsonData = JSON.parse(line.slice(5));
+            const delta = jsonData.choices[0].delta;
+            
+            if (delta.reasoning_content) {
+              reasoningContent += delta.reasoning_content;
+              setCurrentReasoning(reasoningContent);
+            } else if (delta.content) {
+              content += delta.content;
+              setCurrentResponse(content);
+            }
+          } catch (e) {
+            console.error('Error parsing chunk:', e);
+          }
+        }
+      }
+      
+      return { reasoningContent, content };
+    } catch (error) {
+      console.error('Error processing stream:', error);
+      throw error;
+    }
+  };
+
   const handleSend = async () => {
     if (!inputValue.trim()) return;
 
@@ -52,9 +94,11 @@ const ChatInterface = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    setCurrentReasoning('');
+    setCurrentResponse('');
 
     try {
-      const response = await fetch('https://api.deepseek.com/chat/completions', {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,23 +108,34 @@ const ChatInterface = () => {
           model: selectedModel,
           messages: [
             { role: "system", content: "You are a helpful assistant" },
+            ...messages,
             userMessage
           ],
-          stream: false
+          stream: true
         })
       });
 
-      const data = await response.json();
-      if (data.choices && data.choices.length > 0) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.choices[0].message.content }]);
-      } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: '发生错误，请稍后重试。' }]);
-      }
+      const { reasoningContent, content } = await processStreamResponse(response.body.getReader());
+      
+      // After streaming is complete, add the final response to messages
+      setMessages(prev => [
+        ...prev,
+        { 
+          role: 'assistant', 
+          content: content,
+          reasoning: reasoningContent 
+        }
+      ]);
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: '发生错误，请稍后重试。' }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '发生错误，请稍后重试。'
+      }]);
     } finally {
       setIsLoading(false);
+      setCurrentReasoning('');
+      setCurrentResponse('');
     }
   };
 
@@ -143,9 +198,31 @@ const ChatInterface = () => {
               } shadow`}
             >
               <div dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+              {message.reasoning && (
+                <div className="mt-2 pt-2 border-t border-gray-600">
+                  <p className="text-sm text-gray-400">推理过程：</p>
+                  <div className="text-sm text-gray-300" dangerouslySetInnerHTML={{ __html: formatMessage(message.reasoning) }} />
+                </div>
+              )}
             </div>
           </div>
         ))}
+        
+        {/* Streaming Response */}
+        {(currentReasoning || currentResponse) && (
+          <div className="flex justify-start">
+            <div className={`max-w-3xl rounded-lg p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ${isDarkMode ? 'text-white' : 'text-gray-900'} shadow`}>
+              {currentReasoning && (
+                <div className="mb-2">
+                  <p className="text-sm text-gray-400">推理中...</p>
+                  <div className="text-sm text-gray-300">{currentReasoning}</div>
+                </div>
+              )}
+              {currentResponse && <div>{currentResponse}</div>}
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
