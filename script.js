@@ -3,7 +3,7 @@
 
 // Helper function to get API key storage key and endpoint based on model
 function getApiKeyStorageKeyAndEndpoint(selectedModel) {
-    let apiKeyStorageKey = 'apiKey_deepseek'; 
+    let apiKeyStorageKey = 'apiKey_deepseek';
     let endpoint = 'https://api.deepseek.com/chat/completions'; // Default to deepseek
 
     if (selectedModel.startsWith('qwen')) {
@@ -74,36 +74,46 @@ function formatMessage(text) {
 }
 
 // 显示消息
-function displayMessage(role, message) {
+function displayMessage(role, message, messageContentElement = null) {
     const messagesContainer = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${role}`;
+    let messageElement;
+    let messageContent;
 
-    const avatar = document.createElement('img');
-    if (role === 'user') {
-        avatar.src = 'yyc.png'; // User avatar remains the same
-    } else { // Bot avatar changes based on model
-        const selectedModel = document.getElementById('model-selector').value;
-        if (selectedModel.startsWith('qwen')) {
-            avatar.src = 'qwen.png'; // Avatar for Qwen-Max (replace with your image)
-        } else { // Default avatar for Deepseek models
-            avatar.src = 'deepseek.png';
+    if (!messageContentElement) {
+        messageElement = document.createElement('div');
+        messageElement.className = `message ${role}`;
+
+        const avatar = document.createElement('img');
+        if (role === 'user') {
+            avatar.src = 'yyc.png'; // User avatar remains the same
+        } else { // Bot avatar changes based on model
+            const selectedModel = document.getElementById('model-selector').value;
+            if (selectedModel.startsWith('qwen')) {
+                avatar.src = 'qwen.png'; // Avatar for Qwen-Max
+            } else { // Default avatar for Deepseek models
+                avatar.src = 'deepseek.png';
+            }
         }
-    }
-    avatar.alt = role === 'user' ? 'User' : 'Bot';
+        // avatar.alt = role === 'user' ? 'User' : 'Bot';
 
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
+        messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+
+        messageElement.appendChild(avatar);
+        messageElement.appendChild(messageContent);
+        messagesContainer.appendChild(messageElement);
+    } else {
+        messageContent = messageContentElement;
+        messageElement = messageContentElement.parentElement; // Get the parent message element
+    }
+
 
     // 用户消息直接显示，机器人消息需要格式化
     messageContent.innerHTML = role === 'user' ? message : formatMessage(message);
 
-    messageElement.appendChild(avatar);
-    messageElement.appendChild(messageContent);
-    messagesContainer.appendChild(messageElement);
-
     // 平滑滚动到底部
     messageElement.scrollIntoView({ behavior: 'smooth' });
+    return messageContent; // Return messageContent for updating in streaming
 }
 
 // API Key handling functions
@@ -188,33 +198,17 @@ function sendMessage(forcedMessage = null) {
         stream: true
     };
 
-    // 创建机器人回复的消息容器
-    const messagesContainer = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message bot';
-
-    // 创建头像元素
-    const avatar = document.createElement('img');
-    avatar.src = 'saki1.jpg';
-    avatar.alt = 'Bot';
-
-    // 创建消息内容容器
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-
-    // 创建推理内容和最终内容的容器
+    // 创建机器人回复的消息容器 (Now using displayMessage to create it)
+    let botMessageContentElement = displayMessage('bot', ''); // Create bot message container and get content element
     const reasoningElement = document.createElement('div');
     reasoningElement.className = 'reasoning-content';
     const contentElement = document.createElement('div');
     contentElement.className = 'final-content';
+    botMessageContentElement.appendChild(reasoningElement);
+    botMessageContentElement.appendChild(contentElement);
 
-    // 组装DOM结构
-    messageContent.appendChild(reasoningElement);
-    messageContent.appendChild(contentElement);
-    messageElement.appendChild(avatar);
-    messageElement.appendChild(messageContent);
-    messagesContainer.appendChild(messageElement);
 
+    const messagesContainer = document.getElementById('messages');
     // 初始滚动到底部
     scrollToBottom(messagesContainer, false);
 
@@ -390,7 +384,7 @@ function updateApiKeyStatus() {
     let modelDisplayName = "Deepseek";
     if (selectedModel === 'qwen-max' || selectedModel === 'qwen-plus') {
         modelDisplayName = "Qwen";
-    } 
+    }
     if (apiKey) {
         statusElement.textContent = `已设置 (${modelDisplayName})`;
         statusElement.style.color = '#28a745';

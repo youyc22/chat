@@ -482,6 +482,7 @@ input:checked + .slider:before {
 .api-key-btn {
     display: flex;
     align-items: center;
+    margin-left: 55px;
     gap: 6px;
     padding: 6px 12px;
     background-color: #f0f0f0;
