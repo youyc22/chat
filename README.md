@@ -11,7 +11,17 @@
   - 超出上下文限制警告
   - 接入更多模型
 
-部署方式：
+
+## 部署方式：
+
 github网页部署详细方式：https://blog.csdn.net/qq_20042935/article/details/133920722
+
 fork之后参考下图，等待几秒后就可以访问https://<你的用户名>.github.io/dpsk/了
+
 ![image](https://github.com/user-attachments/assets/e53b7c84-02ec-4a29-aedb-af1450ed8d9e)
+
+## 关于api key
+
+deepseek的api平台最近关了
+
+qwen系列的在这里https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api
