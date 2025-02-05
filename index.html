@@ -13,7 +13,6 @@
         <div class="settings-bar">
             <div class="settings-left">
                 <div class="model-select">
-                    <label for="model-selector"></label>
                     <select id="model-selector">
                         <option value="deepseek-chat">Deepseek V3</option>
                         <option value="deepseek-reasoner">Deepseek r1</option>
@@ -21,15 +20,21 @@
                         <option value="qwen-plus">Qwen-Plus</option>
                     </select>
                 </div>
-                <!-- 添加 API Key 管理按钮 -->
+                
                 <div class="api-key-manager">
                     <button onclick="showApiKeyManager()" class="api-key-btn">
                         <span class="key-icon">🔑</span>
                         <span id="apiKeyStatus">API Key</span>
                     </button>
                 </div>
-            </div>
-            <div class="settings-right">
+                
+                <div class="save-conversation">
+                    <button onclick="saveConversation()" class="save-btn">
+                        <span class="save-icon">💾</span>
+                        <span>保存对话</span>
+                    </button>
+                </div>
+                
                 <div class="theme-toggle">
                     <span>🌞</span>
                     <label class="switch">

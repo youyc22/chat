@@ -151,6 +151,9 @@ document.getElementById('apiKeyInput').addEventListener('keypress', function(eve
     }
 });
 
+// A global variable to hold the conversation history
+let conversationHistory = [];
+
 // 消息发送的核心函数
 function sendMessage(forcedMessage = null) {
     // 获取必要的DOM元素和用户输入
@@ -182,21 +185,20 @@ function sendMessage(forcedMessage = null) {
     // 显示用户消息
     displayMessage('user', message);
 
+    // 更新 conversationHistory
+    conversationHistory.push({ role: 'user', content: message });
+
     // 显示加载动画
     const loadingElement = document.getElementById('loading');
     if (loadingElement) {
         loadingElement.style.display = 'block';
     }
 
-    // 准备 API 请求
-    const payload = {
-        model: selectedModel,
-        messages: [
-            { role: "system", content: "You are a helpful assistant" },
-            { role: "user", content: message }
-        ],
-        stream: true
-    };
+    // 准备 API 请求的消息数组
+    const messages = [
+        { role: "system", content: "You are a helpful assistant." },
+        ...conversationHistory
+    ];
 
     // 创建机器人回复的消息容器 (Now using displayMessage to create it)
     let botMessageContentElement = displayMessage('bot', ''); // Create bot message container and get content element
@@ -215,6 +217,7 @@ function sendMessage(forcedMessage = null) {
     // 用于存储消息内容
     let reasoningContent = '';
     let finalContent = '';
+    let botResponseMessage = ''; // 用于累积机器人的完整回复
 
     // 创建防抖滚动函数
     let scrollTimeout;
@@ -224,6 +227,7 @@ function sendMessage(forcedMessage = null) {
             scrollToBottom(messagesContainer);
         }, 100);
     };
+    console.log(messages)
 
     // 发起 API 请求
     fetch(endpoint, {
@@ -232,7 +236,7 @@ function sendMessage(forcedMessage = null) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ model: selectedModel, messages: messages, stream: true })
     })
         .then(response => {
             // 检查响应状态
@@ -253,6 +257,8 @@ function sendMessage(forcedMessage = null) {
                                 controller.close();
                                 // 确保最后一次滚动到底部
                                 setTimeout(() => scrollToBottom(messagesContainer), 100);
+                                // 将机器人的完整回复添加到 conversationHistory
+                                conversationHistory.push({ role: 'assistant', content: botResponseMessage });
                                 return;
                             }
 
@@ -276,6 +282,7 @@ function sendMessage(forcedMessage = null) {
                                             // 处理最终内容
                                             else if (delta.content) {
                                                 finalContent += delta.content;
+                                                botResponseMessage += delta.content; // 累积机器人回复
                                                 contentElement.innerHTML = formatMessage(finalContent);
                                                 debouncedScroll();
                                             }
@@ -374,6 +381,44 @@ function hideApiKeyManager() {
     modal.style.display = 'none';
 }
 
+function saveConversation() {
+    if (conversationHistory.length === 0) {
+        alert('当前没有可保存的对话');
+        return;
+    }
+
+    // 创建对话内容
+    let content = '聊天记录\n\n';
+    content += `保存时间: ${new Date().toLocaleString('zh-CN')}\n`;
+    content += `使用模型: ${document.getElementById('model-selector').value}\n\n`;
+    content += '对话内容:\n';
+    content += '----------------------------------------\n\n';
+
+    conversationHistory.forEach((message, index) => {
+        const role = message.role === 'user' ? '用户' : 'AI';
+        content += `${role}:\n${message.content}\n\n`;
+    });
+
+    // 创建 Blob 对象
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    
+    // 创建下载链接
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `chat_history_${timestamp}.txt`;
+    
+    // 创建下载链接并触发下载
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    
+    // 将链接添加到文档中并点击
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+}
 function updateApiKeyStatus() {
     const statusElement = document.getElementById('currentKeyStatus');
     const statusButton = document.getElementById('apiKeyStatus');
