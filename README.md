@@ -13,6 +13,10 @@
 
 尝试：https://youyc22.github.io/dpsk
 
+## 预览
+
+![12a93d44f1e11d8868174f357a5f2fe3](https://github.com/user-attachments/assets/7e0e6b1b-a47d-4276-8148-7c4b9ca580f4)
+
 ## 关于api key
 
 deepseek的api平台：https://platform.deepseek.com/
