@@ -12,6 +12,9 @@ function getApiKeyStorageKeyAndEndpoint(selectedModel) {
     } else if (selectedModel.startsWith('deepseek')) {
         apiKeyStorageKey = 'apiKey_deepseek';
         endpoint = 'https://api.deepseek.com/chat/completions';
+    } else if (selectedModel.startsWith('hunyuan')) {
+        apiKeyStorageKey = 'apiKey_hunyuan';
+        endpoint = 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions';
     }
 
     return { apiKeyStorageKey, endpoint };
@@ -90,8 +93,10 @@ function displayMessage(role, message, messageContentElement = null) {
             const selectedModel = document.getElementById('model-selector').value;
             if (selectedModel.startsWith('qwen') || selectedModel.startsWith('qwq')) {
                 avatar.src = 'qwen.png'; // Avatar for Qwen-Max
-            } else { // Default avatar for Deepseek models
-                avatar.src = 'deepseek.png';
+            } else if (selectedModel.startsWith('deepseek')) {
+                avatar.src = 'deepseek.png'; // Avatar for Deepseek
+            } else if (selectedModel.startsWith('hunyuan')) {
+                avatar.src = 'hunyuan.png'; // Avatar for Hunyuan
             }
         }
         // avatar.alt = role === 'user' ? 'User' : 'Bot';
@@ -427,8 +432,10 @@ function updateApiKeyStatus() {
     const apiKey = localStorage.getItem(apiKeyStorageKey);
 
     let modelDisplayName = "Deepseek";
-    if (selectedModel === 'qwen-max' || selectedModel === 'qwen-plus' || selectedModel === 'qwq-32b') {
+    if (selectedModel === 'qwen-max-latest' || selectedModel === 'qwen-plus-latest'|| selectedModel === 'qwq-plus-latest' || selectedModel === 'qwq-32b' ) {
         modelDisplayName = "Qwen";
+    } else if (selectedModel === 'hunyuan-t1-latest') {
+        modelDisplayName = "Hunyuan";
     }
     if (apiKey) {
         statusElement.textContent = `已设置 (${modelDisplayName})`;
