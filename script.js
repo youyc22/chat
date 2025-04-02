@@ -6,7 +6,7 @@ function getApiKeyStorageKeyAndEndpoint(selectedModel) {
     let apiKeyStorageKey = 'apiKey_deepseek';
     let endpoint = 'https://api.deepseek.com/chat/completions'; // Default to deepseek
 
-    if (selectedModel.startsWith('qwen')) {
+    if (selectedModel.startsWith('qwen') || selectedModel.startsWith('qwq')) {
         apiKeyStorageKey = 'apiKey_qwen';
         endpoint = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
     } else if (selectedModel.startsWith('deepseek')) {
@@ -88,7 +88,7 @@ function displayMessage(role, message, messageContentElement = null) {
             avatar.src = 'yyc.png'; // User avatar remains the same
         } else { // Bot avatar changes based on model
             const selectedModel = document.getElementById('model-selector').value;
-            if (selectedModel.startsWith('qwen')) {
+            if (selectedModel.startsWith('qwen') || selectedModel.startsWith('qwq')) {
                 avatar.src = 'qwen.png'; // Avatar for Qwen-Max
             } else { // Default avatar for Deepseek models
                 avatar.src = 'deepseek.png';
@@ -427,7 +427,7 @@ function updateApiKeyStatus() {
     const apiKey = localStorage.getItem(apiKeyStorageKey);
 
     let modelDisplayName = "Deepseek";
-    if (selectedModel === 'qwen-max' || selectedModel === 'qwen-plus') {
+    if (selectedModel === 'qwen-max' || selectedModel === 'qwen-plus' || selectedModel === 'qwq-32b') {
         modelDisplayName = "Qwen";
     }
     if (apiKey) {
