@@ -422,3 +422,131 @@ body.dark-mode {
         font-size: 14px;
     }
 }
+
+/* API Key Manager Styles */
+
+/* API Key list container */
+.api-key-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* API Key item */
+.api-key-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #f9f9f9;
+}
+
+.dark-mode .api-key-item {
+    border-color: #444;
+    background-color: #2a2a2a;
+}
+
+/* API Key label */
+.api-key-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.api-key-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    border-radius: 50%;
+}
+
+.api-key-label span {
+    margin-right: 8px;
+}
+
+.key-status {
+    margin-left: auto;
+    font-weight: 500;
+}
+
+/* API Key input group */
+.api-key-input-group {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.api-key-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+}
+
+.dark-mode .api-key-input-group input {
+    background-color: #222;
+    border-color: #555;
+    color: #fff;
+}
+
+.api-key-input-group .toggle-visibility {
+    border-radius: 0 4px 4px 0;
+    border: 1px solid #ccc;
+    border-left: none;
+    padding: 0 10px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.dark-mode .api-key-input-group .toggle-visibility {
+    background-color: #333;
+    border-color: #555;
+    color: #fff;
+}
+
+/* API Key actions */
+.api-key-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.api-key-actions button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.api-key-actions .primary-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+.api-key-actions .primary-btn:hover {
+    background-color: #45a049;
+}
+
+.api-key-actions .danger-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.api-key-actions .danger-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* API Key status on the main button */
+.key-present {
+    color: #28a745;
+}
+
+.key-missing {
+    color: #dc3545;
+}
+
+/* Make the modal slightly wider */
+.modal-content {
+    width: 480px;
+    max-width: 90vw;
+}

@@ -88,15 +88,15 @@ function displayMessage(role, message, messageContentElement = null) {
 
         const avatar = document.createElement('img');
         if (role === 'user') {
-            avatar.src = 'yyc.png'; // User avatar remains the same
+            avatar.src = 'images/yyc.png'; // User avatar remains the same
         } else { // Bot avatar changes based on model
             const selectedModel = document.getElementById('model-selector').value;
             if (selectedModel.startsWith('qwen') || selectedModel.startsWith('qwq')) {
-                avatar.src = 'qwen.png'; // Avatar for Qwen-Max
+                avatar.src = 'images/qwen.png'; // Avatar for Qwen-Max
             } else if (selectedModel.startsWith('deepseek')) {
-                avatar.src = 'deepseek.png'; // Avatar for Deepseek
+                avatar.src = 'images/deepseek.png'; // Avatar for Deepseek
             } else if (selectedModel.startsWith('hunyuan')) {
-                avatar.src = 'hunyuan.png'; // Avatar for Hunyuan
+                avatar.src = 'images/hunyuan.png'; // Avatar for Hunyuan
             }
         }
         // avatar.alt = role === 'user' ? 'User' : 'Bot';
@@ -378,7 +378,7 @@ function toggleDropdown(event) {
 function showApiKeyManager() {
     const modal = document.getElementById('apiKeyManager');
     modal.style.display = 'flex';
-    updateApiKeyStatus();
+    updateAllApiKeyStatuses();
 }
 
 function hideApiKeyManager() {
@@ -424,33 +424,47 @@ function saveConversation() {
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
 }
-function updateApiKeyStatus() {
-    const statusElement = document.getElementById('currentKeyStatus');
-    const statusButton = document.getElementById('apiKeyStatus');
-    const selectedModel = document.getElementById('model-selector').value;
-    const { apiKeyStorageKey } = getApiKeyStorageKeyAndEndpoint(selectedModel);
-    const apiKey = localStorage.getItem(apiKeyStorageKey);
 
-    let modelDisplayName = "Deepseek";
-    if (selectedModel === 'qwen-max-latest' || selectedModel === 'qwen-plus-latest'|| selectedModel === 'qwq-plus-latest' || selectedModel === 'qwq-32b' ) {
-        modelDisplayName = "Qwen";
-    } else if (selectedModel === 'hunyuan-t1-latest') {
-        modelDisplayName = "Hunyuan";
-    }
-    if (apiKey) {
-        statusElement.textContent = `已设置 (${modelDisplayName})`;
-        statusElement.style.color = '#28a745';
-        statusButton.textContent = `API Key ✓`;
+function updateAllApiKeyStatuses() {
+    // Deepseek
+    const deepseekKey = localStorage.getItem('apiKey_deepseek');
+    const deepseekStatus = document.getElementById('deepseek-key-status');
+    if (deepseekKey) {
+        deepseekStatus.textContent = '已设置';
+        deepseekStatus.style.color = '#28a745';
     } else {
-        statusElement.textContent = `未设置 (${modelDisplayName})`;
-        statusElement.style.color = '#dc3545';
-        statusButton.textContent = 'API Key ✗';
+        deepseekStatus.textContent = '未设置';
+        deepseekStatus.style.color = '#dc3545';
     }
+    
+    // Qwen
+    const qwenKey = localStorage.getItem('apiKey_qwen');
+    const qwenStatus = document.getElementById('qwen-key-status');
+    if (qwenKey) {
+        qwenStatus.textContent = '已设置';
+        qwenStatus.style.color = '#28a745';
+    } else {
+        qwenStatus.textContent = '未设置';
+        qwenStatus.style.color = '#dc3545';
+    }
+    
+    // Hunyuan
+    const hunyuanKey = localStorage.getItem('apiKey_hunyuan');
+    const hunyuanStatus = document.getElementById('hunyuan-key-status');
+    if (hunyuanKey) {
+        hunyuanStatus.textContent = '已设置';
+        hunyuanStatus.style.color = '#28a745';
+    } else {
+        hunyuanStatus.textContent = '未设置';
+        hunyuanStatus.style.color = '#dc3545';
+    }
+    
+    // Update the main API key status button
+    updateApiKeyStatus();
 }
-
-function toggleKeyVisibility() {
-    const input = document.getElementById('apiKeyInput');
-    const icon = document.getElementById('visibilityIcon');
+function toggleKeyVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
 
     if (input.type === 'password') {
         input.type = 'text';
@@ -461,40 +475,100 @@ function toggleKeyVisibility() {
     }
 }
 
-function updateApiKey() {
+function toggleApiKeyVisibility() {
     const input = document.getElementById('apiKeyInput');
+    const icon = document.getElementById('modalVisibilityIcon');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '👁️‍🗨️';
+    } else {
+        input.type = 'password';
+        icon.textContent = '👁️';
+    }
+}
+
+// Update a specific API key
+function updateApiKey(provider) {
+    let inputId, storageKey;
+    
+    switch(provider) {
+        case 'deepseek':
+            inputId = 'deepseek-key-input';
+            storageKey = 'apiKey_deepseek';
+            break;
+        case 'qwen':
+            inputId = 'qwen-key-input';
+            storageKey = 'apiKey_qwen';
+            break;
+        case 'hunyuan':
+            inputId = 'hunyuan-key-input';
+            storageKey = 'apiKey_hunyuan';
+            break;
+        default:
+            return;
+    }
+    
+    const input = document.getElementById(inputId);
     const apiKey = input.value.trim();
-
+    
     if (apiKey) {
-        const selectedModel = document.getElementById('model-selector').value;
-        const { apiKeyStorageKey } = getApiKeyStorageKeyAndEndpoint(selectedModel);
-        localStorage.setItem(apiKeyStorageKey, apiKey);
+        localStorage.setItem(storageKey, apiKey);
         input.value = '';
-        updateApiKeyStatus();
-
-        // 显示成功提示
-        const statusElement = document.getElementById('currentKeyStatus');
+        
+        // Update status displays
+        updateAllApiKeyStatuses();
+        
+        // Flash success message
+        const statusId = `${provider}-key-status`;
+        const statusElement = document.getElementById(statusId);
+        const originalText = statusElement.textContent;
+        const originalColor = statusElement.style.color;
+        
         statusElement.textContent = '更新成功！';
         statusElement.style.color = '#28a745';
-
+        
         setTimeout(() => {
-            hideApiKeyManager();
+            statusElement.textContent = '已设置';
+            statusElement.style.color = '#28a745';
         }, 1000);
     } else {
         alert('请输入有效的 API Key');
     }
 }
 
-function removeApiKey() {
-    if (confirm('确定要删除当前的 API Key 吗？')) {
-        const selectedModel = document.getElementById('model-selector').value;
-        const { apiKeyStorageKey } = getApiKeyStorageKeyAndEndpoint(selectedModel);
-        localStorage.removeItem(apiKeyStorageKey);
-        document.getElementById('apiKeyInput').value = '';
-        updateApiKeyStatus();
-
-        // 显示删除成功提示
-        const statusElement = document.getElementById('currentKeyStatus');
+// Remove a specific API key
+function removeApiKey(provider) {
+    let storageKey;
+    
+    switch(provider) {
+        case 'deepseek':
+            storageKey = 'apiKey_deepseek';
+            break;
+        case 'qwen':
+            storageKey = 'apiKey_qwen';
+            break;
+        case 'hunyuan':
+            storageKey = 'apiKey_hunyuan';
+            break;
+        default:
+            return;
+    }
+    
+    if (confirm(`确定要删除 ${provider.charAt(0).toUpperCase() + provider.slice(1)} API Key 吗？`)) {
+        localStorage.removeItem(storageKey);
+        
+        // Clear the input field if it has content
+        const inputId = `${provider}-key-input`;
+        document.getElementById(inputId).value = '';
+        
+        // Update all status displays
+        updateAllApiKeyStatuses();
+        
+        // Flash removed message
+        const statusId = `${provider}-key-status`;
+        const statusElement = document.getElementById(statusId);
+        
         statusElement.textContent = '已删除';
         statusElement.style.color = '#dc3545';
     }
