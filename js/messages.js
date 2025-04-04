@@ -1,17 +1,20 @@
-// message-display.js
-// Handles message formatting and display
+// messages.js
+// Message formatting and display
 
-import { getProviderFromModel, getAvatarPath } from './api-client.js';
-import { scrollToBottom } from './ui-utils.js';
+import { getModelAvatar } from './config.js';
 
-// Format message text with styling
+/**
+ * Format message text with Markdown-like syntax
+ * @param {string} text - The raw message text
+ * @returns {string} - Formatted HTML
+ */
 export function formatMessage(text) {
     if (!text) return '';
 
     // Process titles and line breaks
     let lines = text.split('\n');
     let formattedLines = lines.map(line => {
-        // Process titles (**text**)
+        // Process bold text (**text**)
         line = line.replace(/\*\*(.*?)\*\*/g, '<span class="bold-text">$1</span>');
         return line;
     });
@@ -34,15 +37,15 @@ export function formatMessage(text) {
             while (currentIndex < lines.length) {
                 let line = lines[currentIndex].trim();
 
-                // If starts with number (like "1.")
+                // If it starts with a number (e.g. "1.")
                 if (/^\d+\./.test(line)) {
                     result += `<p class="section-title">${line}</p>`;
                 }
-                // If is a subtitle (starts with dash)
+                // If it's a subtitle (starts with dash)
                 else if (line.startsWith('-')) {
                     result += `<p class="subsection"><span class="bold-text">${line.replace(/^-/, '').trim()}</span></p>`;
                 }
-                // If is body text (contains colon)
+                // If it's body text (line with colon)
                 else if (line.includes(':')) {
                     let [subtitle, content] = line.split(':').map(part => part.trim());
                     result += `<p><span class="subtitle">${subtitle}</span>: ${content}</p>`;
@@ -59,7 +62,13 @@ export function formatMessage(text) {
     return sections.join('');
 }
 
-// Display a message in the chat
+/**
+ * Display a message in the chat interface
+ * @param {string} role - 'user' or 'bot'
+ * @param {string} message - The message content
+ * @param {HTMLElement} messageContentElement - Optional existing message element to update
+ * @returns {HTMLElement} - The message content element
+ */
 export function displayMessage(role, message, messageContentElement = null) {
     const messagesContainer = document.getElementById('messages');
     let messageElement;
@@ -74,8 +83,7 @@ export function displayMessage(role, message, messageContentElement = null) {
             avatar.src = 'images/yyc.png'; // User avatar remains the same
         } else { // Bot avatar changes based on model
             const selectedModel = document.getElementById('model-selector').value;
-            const provider = getProviderFromModel(selectedModel);
-            avatar.src = getAvatarPath(provider);
+            avatar.src = getModelAvatar(selectedModel);
         }
 
         messageContent = document.createElement('div');
@@ -89,10 +97,30 @@ export function displayMessage(role, message, messageContentElement = null) {
         messageElement = messageContentElement.parentElement; // Get the parent message element
     }
 
-    // User messages display directly, bot messages need formatting
+    // User messages displayed directly, bot messages need formatting
     messageContent.innerHTML = role === 'user' ? message : formatMessage(message);
 
     // Smooth scroll to bottom
     messageElement.scrollIntoView({ behavior: 'smooth' });
     return messageContent; // Return messageContent for updating in streaming
+}
+
+/**
+ * Scroll the messages container to the bottom
+ * @param {HTMLElement} element - The element to scroll
+ * @param {boolean} smooth - Whether to use smooth scrolling
+ */
+export function scrollToBottom(element, smooth = true) {
+    // Get messages container
+    const container = document.querySelector('.messages');
+    if (!container) return;
+
+    // Calculate needed scroll position
+    const scrollTop = container.scrollHeight - container.clientHeight;
+
+    // Use smooth or instant scrolling
+    container.scrollTo({
+        top: scrollTop,
+        behavior: smooth ? 'smooth' : 'auto'
+    });
 }

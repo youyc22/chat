@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="chat-container">
-        <!-- 添加顶部设置栏 -->
+        <!-- 顶部设置栏 -->
         <div class="settings-bar">
             <div class="settings-left">
                 <div class="model-select">
@@ -55,7 +55,7 @@
 
         <!-- 输入区域 -->
         <div class="input-container">
-            <input id="chat-input" type="text" placeholder="输入消息..." autocomplete="off"/>
+            <textarea id="chat-input" placeholder="输入消息..." autocomplete="off" rows="1"></textarea>
             <button onclick="sendMessage()">发送</button>
         </div>
     </div>
@@ -149,7 +149,7 @@
         </div>
     </div>
 
-
-    <script src="script.js"></script>
+    <!-- Import modular JavaScript files with type="module" -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

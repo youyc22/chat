@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yyc Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 添加顶部设置栏 -->
+        <div class="settings-bar">
+            <div class="settings-left">
+                <div class="model-select">
+                    <select id="model-selector">
+                        <option value="deepseek-chat">Deepseek-v3</option>
+                        <option value="deepseek-reasoner">Deepseek-r1</option>
+                        <option value="hunyuan-t1-latest">Hunyuan-t1</option>
+                        <option value="qwen-max-latest">Qwen-Max</option>
+                        <option value="qwen-plus-latest">Qwen-Plus</option>
+                        <option value="qwq-plus-latest">QwQ-Plus</option>
+                        <option value="qwq-32b">QwQ-32b</option>
+                    </select>
+                </div>
+                
+                <div class="api-key-manager">
+                    <button onclick="showApiKeyManager()" class="api-key-btn">
+                        <span class="key-icon">🔑</span>
+                        <span id="apiKeyStatus">API Key</span>
+                    </button>
+                </div>
+                
+                <div class="save-conversation">
+                    <button onclick="saveConversation()" class="save-btn">
+                        <span class="save-icon">💾</span>
+                        <span>保存对话</span>
+                    </button>
+                </div>
+                
+                <div class="theme-toggle">
+                    <span>🌞</span>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle" onclick="toggleTheme()">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>🌙</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="messages" id="messages"></div>
+        <div id="loading" class="loading" style="display: none;">加载中...</div>
+
+        <!-- 输入区域 -->
+        <div class="input-container">
+            <input id="chat-input" type="text" placeholder="输入消息..." autocomplete="off"/>
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <!-- API Key 管理弹窗 -->
+    <div id="apiKeyManager" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Key 管理</h2>
+                <button onclick="hideApiKeyManager()" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="api-key-list">
+                    <!-- Deepseek API Key -->
+                    <div class="api-key-item">
+                        <div class="api-key-label">
+                            <img src="images/deepseek.png" alt="Deepseek" class="api-key-icon">
+                            <span>Deepseek API Key</span>
+                            <span id="deepseek-key-status" class="key-status">未设置</span>
+                        </div>
+                        <div class="api-key-input-group">
+                            <input type="password" id="deepseek-key-input" placeholder="输入 Deepseek API Key" autocomplete="off"/>
+                            <button onclick="toggleKeyVisibility('deepseek-key-input', 'deepseek-visibility-icon')" class="toggle-visibility">
+                                <span id="deepseek-visibility-icon">👁️</span>
+                            </button>
+                        </div>
+                        <div class="api-key-actions">
+                            <button onclick="updateApiKey('deepseek')" class="primary-btn">更新</button>
+                            <button onclick="removeApiKey('deepseek')" class="danger-btn">删除</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Qwen API Key -->
+                    <div class="api-key-item">
+                        <div class="api-key-label">
+                            <img src="images/qwen.png" alt="Qwen" class="api-key-icon">
+                            <span>Qwen API Key</span>
+                            <span id="qwen-key-status" class="key-status">未设置</span>
+                        </div>
+                        <div class="api-key-input-group">
+                            <input type="password" id="qwen-key-input" placeholder="输入 Qwen API Key" autocomplete="off"/>
+                            <button onclick="toggleKeyVisibility('qwen-key-input', 'qwen-visibility-icon')" class="toggle-visibility">
+                                <span id="qwen-visibility-icon">👁️</span>
+                            </button>
+                        </div>
+                        <div class="api-key-actions">
+                            <button onclick="updateApiKey('qwen')" class="primary-btn">更新</button>
+                            <button onclick="removeApiKey('qwen')" class="danger-btn">删除</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hunyuan API Key -->
+                    <div class="api-key-item">
+                        <div class="api-key-label">
+                            <img src="images/hunyuan.png" alt="Hunyuan" class="api-key-icon">
+                            <span>Hunyuan API Key</span>
+                            <span id="hunyuan-key-status" class="key-status">未设置</span>
+                        </div>
+                        <div class="api-key-input-group">
+                            <input type="password" id="hunyuan-key-input" placeholder="输入 Hunyuan API Key" autocomplete="off"/>
+                            <button onclick="toggleKeyVisibility('hunyuan-key-input', 'hunyuan-visibility-icon')" class="toggle-visibility">
+                                <span id="hunyuan-visibility-icon">👁️</span>
+                            </button>
+                        </div>
+                        <div class="api-key-actions">
+                            <button onclick="updateApiKey('hunyuan')" class="primary-btn">更新</button>
+                            <button onclick="removeApiKey('hunyuan')" class="danger-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- API Key Input Modal (when user tries to send message without a key) -->
+    <div id="apiKeyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>需要 API Key</h2>
+                <button onclick="hideApiKeyModal()" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="apiKeyModelName">请输入 API Key 以使用此模型</p>
+                <div class="api-key-input-group">
+                    <input type="password" id="apiKeyInput" placeholder="输入 API Key" autocomplete="off"/>
+                    <button onclick="toggleApiKeyVisibility()" class="toggle-visibility">
+                        <span id="modalVisibilityIcon">👁️</span>
+                    </button>
+                </div>
+                <button onclick="submitApiKey()" class="primary-btn full-width">提交</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="./script.js"></script>
+</body>
+</html>
