@@ -221,8 +221,8 @@ body {
     transition: border-color 0.3s, box-shadow 0.3s, height 0.2s;
     resize: none;
     overflow-y: auto;      /* 改为 auto，允许在需要时显示滚动条 */
-    height: 21px;           
-    min-height: 21px;
+    height: 42px;           
+    min-height: 42px;
     max-height: 150px;
     line-height: 1.5;
 }
@@ -515,18 +515,34 @@ body {
 }
 
 .copy-code-btn {
-    background-color: transparent;
+    background-color: #f8f8f8;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #555;
+}
+
+.copy-code-btn:before {
+    content: "📋";
+    font-size: 13px;
 }
 
 .copy-code-btn:hover {
-    background-color: #f0f0f0;
+    background-color: #e8e8e8;
     border-color: #aaa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.copy-code-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 .copy-code-btn.copy-success {
@@ -535,12 +551,62 @@ body {
     border-color: #4caf50;
 }
 
+.copy-code-btn.copy-success:before {
+    content: "✓";
+}
+
 .copy-code-btn.copy-error {
     background-color: #f44336;
     color: white;
     border-color: #f44336;
 }
 
+.copy-code-btn.copy-error:before {
+    content: "✗";
+}
+
+/* .message-copy-btn {
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.message-copy-btn:before {
+    content: "📋";
+    font-size: 13px;
+}
+.message-copy-btn:hover {
+    background-color: #e8e8e8;
+    border-color: #aaa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+.message-copy-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+.message-copy-btn.copy-success {
+    background-color: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}
+.message-copy-btn.copy-success:before {
+    content: "✓";
+}
+.message-copy-btn.copy-error {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+}
+.message-copy-btn.copy-error:before {
+    content: "✗";
+} */
 .code-content {
     margin: 0;
     padding: 12px;
@@ -579,6 +645,7 @@ code {
 }
 
 .dark-mode .copy-code-btn {
+    background-color: #3a3a3a;
     border-color: #555;
     color: #ddd;
 }
@@ -586,6 +653,7 @@ code {
 .dark-mode .copy-code-btn:hover {
     background-color: #444;
     border-color: #666;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 
 .dark-mode .code-content {

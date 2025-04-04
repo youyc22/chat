@@ -156,8 +156,27 @@ export function displayMessage(role, message, messageContentElement = null) {
         messageContent = document.createElement('div');
         messageContent.className = 'message-content';
 
+        // 添加消息操作按钮容器
+        const messageActions = document.createElement('div');
+        messageActions.className = 'message-actions';
+        
+        // 添加复制按钮
+        // if (role === 'bot') { // 只给机器人消息添加复制按钮
+        //     const copyButton = document.createElement('button');
+        //     copyButton.className = 'message-copy-btn';
+        //     copyButton.textContent = '复制';
+        //     copyButton.onclick = function() {
+        //         copyMessageContent(this);
+        //     };
+        //     messageActions.appendChild(copyButton);
+        // }
+
         messageElement.appendChild(avatar);
         messageElement.appendChild(messageContent);
+        
+        // 将操作按钮添加到消息元素
+        messageElement.appendChild(messageActions);
+        
         messagesContainer.appendChild(messageElement);
     } else {
         messageContent = messageContentElement;
