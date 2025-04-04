@@ -4,12 +4,36 @@
 import { getModelAvatar } from './config.js';
 
 /**
- * Format message text with Markdown-like syntax
+ * Format message text with Markdown-like syntax, including code blocks
  * @param {string} text - The raw message text
  * @returns {string} - Formatted HTML
  */
 export function formatMessage(text) {
     if (!text) return '';
+
+    // 首先处理代码块 (```language code ```)
+    let codeBlockRegex = /```([a-zA-Z]*)\n([\s\S]*?)\n```/g;
+    let codeBlocks = [];
+    let codeBlockIndex = 0;
+    
+    // 替换代码块为占位符，保存代码块内容
+    text = text.replace(codeBlockRegex, (match, language, code) => {
+        codeBlocks.push({
+            language: language.trim().toLowerCase(),
+            code: code
+        });
+        return `__CODE_BLOCK_${codeBlockIndex++}__`;
+    });
+
+    // 处理行内代码 (`code`)
+    let inlineCodeRegex = /`([^`]+)`/g;
+    let inlineCodes = [];
+    let inlineCodeIndex = 0;
+    
+    text = text.replace(inlineCodeRegex, (match, code) => {
+        inlineCodes.push(code);
+        return `__INLINE_CODE_${inlineCodeIndex++}__`;
+    });
 
     // Process titles and line breaks
     let lines = text.split('\n');
@@ -37,8 +61,13 @@ export function formatMessage(text) {
             while (currentIndex < lines.length) {
                 let line = lines[currentIndex].trim();
 
+                // 检查是否有代码块占位符
+                if (line.startsWith('__CODE_BLOCK_')) {
+                    // 不处理，会在最后统一替换
+                    result += `<p>${line}</p>`;
+                }
                 // If it starts with a number (e.g. "1.")
-                if (/^\d+\./.test(line)) {
+                else if (/^\d+\./.test(line)) {
                     result += `<p class="section-title">${line}</p>`;
                 }
                 // If it's a subtitle (starts with dash)
@@ -59,7 +88,45 @@ export function formatMessage(text) {
             return result;
         });
 
-    return sections.join('');
+    let formattedHtml = sections.join('');
+    
+    // 恢复代码块，使用格式化的HTML
+    codeBlocks.forEach((block, index) => {
+        const language = block.language || 'plaintext';
+        const code = escapeHtml(block.code);
+        const formattedCode = `
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">${language}</span>
+                    <button class="copy-code-btn" onclick="copyCodeToClipboard(this)">复制</button>
+                </div>
+                <pre class="code-content language-${language}"><code>${code}</code></pre>
+            </div>
+        `;
+        formattedHtml = formattedHtml.replace(`<p>__CODE_BLOCK_${index}__</p>`, formattedCode);
+    });
+    
+    // 恢复行内代码
+    inlineCodes.forEach((code, index) => {
+        const escapedCode = escapeHtml(code);
+        formattedHtml = formattedHtml.replace(`__INLINE_CODE_${index}__`, `<code class="inline-code">${escapedCode}</code>`);
+    });
+
+    return formattedHtml;
+}
+
+/**
+ * 转义HTML特殊字符，防止XSS攻击
+ * @param {string} text - 需要转义的文本
+ * @returns {string} - 转义后的文本
+ */
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 /**

@@ -20,6 +20,51 @@ window.toggleApiKeyVisibility = toggleApiKeyVisibility;
 window.updateApiKey = updateApiKey;
 window.removeApiKey = removeApiKey;
 window.toggleTheme = toggleTheme;
+window.copyCodeToClipboard = copyCodeToClipboard;
+
+/**
+ * 复制代码到剪贴板
+ * @param {HTMLElement} button - 被点击的复制按钮
+ */
+function copyCodeToClipboard(button) {
+    const codeBlock = button.closest('.code-block');
+    const codeContent = codeBlock.querySelector('code').textContent;
+    
+    // 创建临时textarea来复制文本
+    const textarea = document.createElement('textarea');
+    textarea.value = codeContent;
+    textarea.style.position = 'fixed';  // 避免滚动页面
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        // 执行复制命令
+        const successful = document.execCommand('copy');
+        
+        // 显示复制成功/失败的反馈
+        const originalText = button.textContent;
+        button.textContent = successful ? '已复制!' : '复制失败';
+        button.classList.add(successful ? 'copy-success' : 'copy-error');
+        
+        // 2秒后恢复按钮状态
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copy-success', 'copy-error');
+        }, 2000);
+    } catch (err) {
+        console.error('复制失败:', err);
+        button.textContent = '复制失败';
+        button.classList.add('copy-error');
+        
+        setTimeout(() => {
+            button.textContent = '复制';
+            button.classList.remove('copy-error');
+        }, 2000);
+    }
+    
+    // 清理临时元素
+    document.body.removeChild(textarea);
+}
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {

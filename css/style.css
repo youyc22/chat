@@ -489,6 +489,115 @@ body {
     color: #888;
 }
 
+/* ========== Code Block Styles ========== */
+.code-block {
+    margin: 15px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f7f7f7;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #eaeaea;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.code-language {
+    font-family: monospace;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.copy-code-btn {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-code-btn:hover {
+    background-color: #f0f0f0;
+    border-color: #aaa;
+}
+
+.copy-code-btn.copy-success {
+    background-color: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}
+
+.copy-code-btn.copy-error {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+}
+
+.code-content {
+    margin: 0;
+    padding: 12px;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #f7f7f7;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.inline-code {
+    background-color: #f1f1f1;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #e83e8c;
+}
+
+/* Dark mode code styles */
+.dark-mode .code-block {
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .code-header {
+    background-color: #333;
+    border-bottom: 1px solid #444;
+}
+
+.dark-mode .code-language {
+    color: #aaa;
+}
+
+.dark-mode .copy-code-btn {
+    border-color: #555;
+    color: #ddd;
+}
+
+.dark-mode .copy-code-btn:hover {
+    background-color: #444;
+    border-color: #666;
+}
+
+.dark-mode .code-content {
+    background-color: #2a2a2a;
+    color: #ddd;
+}
+
+.dark-mode .inline-code {
+    background-color: #333;
+    color: #ff8db3;
+}
+
 /* ========== Theme Toggle Switch ========== */
 .switch {
     position: relative;
