@@ -14,6 +14,8 @@
 
 尝试：https://youyc22.github.io/yyc-ai
 
+## 更新历史
+April 4th: 增加hunyuan-t1模型接口；聊天框增加代码渲染框、代码复制功能；整理仓库文件结构
 ## 预览
 
 ![12a93d44f1e11d8868174f357a5f2fe3](https://github.com/user-attachments/assets/7e0e6b1b-a47d-4276-8148-7c4b9ca580f4)
