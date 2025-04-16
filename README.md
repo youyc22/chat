@@ -12,7 +12,7 @@
   - 接入更多模型
   - 增加更多节点以支持不同平台的api key
 
-尝试：https://youyc22.github.io/dpsk
+尝试：https://youyc22.github.io/yyc-ai
 
 ## 预览
 
