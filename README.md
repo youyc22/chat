@@ -12,7 +12,7 @@
   - 接入更多模型
   - 增加更多节点以支持不同平台的api key
 
-尝试：https://youyc22.github.io/yyc-ai
+尝试：https://youyc22.github.io/ChatYYC
 
 ## 更新历史
 April 4th: 增加hunyuan-t1模型接口；聊天框增加代码渲染框、代码复制功能；整理仓库文件结构
