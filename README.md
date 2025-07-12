@@ -19,7 +19,7 @@ Built upon the foundation from [Bilibili video](https://b23.tv/rnkbX2V), with th
 - Multiple nodes for different platform API keys
 
 ## 🎯 Live Demo
-[Try ChatYYC Now →](https://youyc22.github.io/ChatYYC)
+[Try ChatYYC Now →](https://youyc22.com/chat)
 
 ## 📅 Update History
 **April 4th:** Added hunyuan-t1 model interface; Enhanced chat box with code rendering and copy functionality; Reorganized repository file structure
@@ -70,7 +70,7 @@ If you find this project helpful, please consider giving it a star!
 - 增加更多节点以支持不同平台的api key
 
 ## 🎯 在线体验
-[立即试用 ChatYYC →](https://youyc22.github.io/ChatYYC)
+[立即试用 ChatYYC →](https://youyc22.com/chat)
 
 ## 📅 更新历史
 **4月4日:** 增加hunyuan-t1模型接口；聊天框增加代码渲染框、代码复制功能；整理仓库文件结构
